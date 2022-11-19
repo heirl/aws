@@ -111,3 +111,28 @@ Resources:
       LoadBalancerArn: !Ref 'PublicLoadBalancer'
       Port: 80
       Protocol: HTTP
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+
+  ECSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Access to the ECS containers
+      VpcId: !Ref 'VPC'
+
+  ECSSecurityGroupIngressFromPublicALB:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from the public ALB
+      GroupId: !Ref 'ECSSecurityGroup'
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref 'PublicLoadBalancerSecurityGroup'
+
+  ECSSecurityGroupIngressFromSelf:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from other containers in the same security group
+      GroupId: !Ref 'ECSSecurityGroup'
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref 'ECSSecurityGroup'
